@@ -34,9 +34,17 @@ fn get_template() -> Json<Vec<String>> {
     Json(templates_names)
 }
 
+#[get("/template/<name>")]
+fn get_placeholders(name: String) -> Json<String> {
+    match backend::try_to_find_file(name) {
+        Ok(file_name) => return Json(file_name),
+        Err(err_message) => return Json(err_message),
+    };
+}
+
 fn main() {
     rocket::ignite()
         .attach(CORS)
-        .mount("/", routes![get_template])
+        .mount("/", routes![get_template, get_placeholders])
         .launch();
 }
