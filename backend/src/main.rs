@@ -2,15 +2,9 @@
 
 #[macro_use]
 extern crate rocket;
-#[macro_use]
-extern crate serde_derive;
-
-use std::collections::HashMap;
-use std::sync::Mutex;
 
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
-use rocket::State;
 use rocket::{Request, Response};
 use rocket_contrib::json::Json;
 
@@ -34,27 +28,15 @@ impl Fairing for CORS {
     }
 }
 
-type ID = usize;
-
-type MessageMap = Mutex<HashMap<ID, String>>;
-
-#[derive(Serialize, Deserialize)]
-struct Message {
-    id: Option<ID>,
-    contents: Option<String>,
-}
-
-#[get("/<id>", format = "json")]
-fn get(id: ID) -> Json<Message> {
-    Json(Message {
-        id: None,
-        contents: Some(String::from("s: &str")),
-    })
+#[get("/template")]
+fn get_template() -> Json<Vec<String>> {
+    let templates_names = backend::get_templates_names();
+    Json(templates_names)
 }
 
 fn main() {
     rocket::ignite()
         .attach(CORS)
-        .mount("/", routes![get])
+        .mount("/", routes![get_template])
         .launch();
 }
