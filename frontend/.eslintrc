@@ -16,8 +16,8 @@
   "extends": [
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "prettier"
   ],
   "rules": {
     "prettier/prettier": [
@@ -32,8 +32,8 @@
     "@typescript-eslint/array-type": ["error", { "default": "generic" }],
     "@typescript-eslint/no-explicit-any": ["error"],
     "@typescript-eslint/no-implicit-any-catch": ["error"],
-    // "@typescript-eslint/no-unsafe-assignment": ["error"],
-    // "@typescript-eslint/no-unsafe-call": ["error"],
+    "@typescript-eslint/no-unsafe-assignment": ["error"],
+    "@typescript-eslint/no-unsafe-call": ["error"],
     "@typescript-eslint/no-unsafe-member-access": ["error"],
     "@typescript-eslint/no-unsafe-return": ["error"],
     "@typescript-eslint/no-var-requires": ["error"],

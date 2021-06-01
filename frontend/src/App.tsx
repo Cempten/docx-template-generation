@@ -1,7 +1,6 @@
 import React from 'react'
+import axios from 'axios'
 
-function App() {
+export const App = () => {
   return <></>
 }
-
-export default App
