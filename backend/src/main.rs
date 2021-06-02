@@ -48,3 +48,27 @@ fn main() {
         .mount("/", routes![get_template, get_placeholders])
         .launch();
 }
+
+use std::fs;
+use std::io::Read;
+use std::io::Write;
+use zip::write::FileOptions;
+
+fn make_document_copy() {
+    let file = fs::File::open("static/handover_protocol_NAKUKOP_template.docx").unwrap();
+    let new_file = fs::File::create("sss.docx").unwrap();
+
+    let mut archive = zip::ZipArchive::new(&file).unwrap();
+    let mut zip = zip::ZipWriter::new(&new_file);
+
+    let options = FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+
+    for i in 0..archive.len() {
+        let mut inner_file = archive.by_index(i).unwrap();
+        let mut inner_file_content = String::new();
+        inner_file.read_to_string(&mut inner_file_content).unwrap();
+
+        zip.start_file(inner_file.name(), options).unwrap();
+        zip.write(inner_file_content.as_bytes()).unwrap();
+    }
+}
