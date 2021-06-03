@@ -47,7 +47,7 @@ fn main() {
     //     .attach(CORS)
     //     .mount("/", routes![get_template, get_placeholders])
     //     .launch();
-    find_placeholders()
+    println!("{}", expand_placeholder("{{sss  }}").len())
 }
 
 use std::fs;
@@ -83,4 +83,9 @@ fn find_placeholders() {
         let asdw = caps.get(0).unwrap().as_str();
         println!("{:?}", asdw)
     }
+}
+
+fn expand_placeholder(raw_placeholder: &str) -> &str {
+    let expanded_placeholder = &raw_placeholder[2..raw_placeholder.len() - 2];
+    expanded_placeholder.trim()
 }
