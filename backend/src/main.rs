@@ -34,7 +34,7 @@ fn get_template() -> Json<Vec<String>> {
     Json(templates_names)
 }
 
-#[get("/template/<name>")]
+#[get("/template/<name>/placeholders")]
 fn get_placeholders(name: String) -> Json<String> {
     match backend::try_to_find_file(name) {
         Ok(file_name) => return Json(file_name),
@@ -43,10 +43,11 @@ fn get_placeholders(name: String) -> Json<String> {
 }
 
 fn main() {
-    rocket::ignite()
-        .attach(CORS)
-        .mount("/", routes![get_template, get_placeholders])
-        .launch();
+    // rocket::ignite()
+    //     .attach(CORS)
+    //     .mount("/", routes![get_template, get_placeholders])
+    //     .launch();
+    find_placeholders()
 }
 
 use std::fs;
@@ -70,5 +71,16 @@ fn make_document_copy() {
 
         zip.start_file(inner_file.name(), options).unwrap();
         zip.write(inner_file_content.as_bytes()).unwrap();
+    }
+}
+
+use regex::Regex;
+
+fn find_placeholders() {
+    let re = Regex::new(r"\{\{.+?\}\}").unwrap();
+
+    for caps in re.captures_iter("{{sss  }} asdwasdw      asdwasdw {{qqq}}") {
+        let asdw = caps.get(0).unwrap().as_str();
+        println!("{:?}", asdw)
     }
 }
