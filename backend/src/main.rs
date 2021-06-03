@@ -2,9 +2,12 @@
 
 #[macro_use]
 extern crate rocket;
+#[macro_use]
+extern crate serde_derive;
 
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
+use rocket::http::Status;
 use rocket::{Request, Response};
 use rocket_contrib::json::Json;
 
@@ -32,6 +35,12 @@ impl Fairing for CORS {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+struct CustomError {
+    message: String,
+    status: usize,
+}
+
 #[get("/template")]
 fn get_template() -> Json<Vec<String>> {
     let templates_names = templates::get_templates_names();
@@ -39,22 +48,34 @@ fn get_template() -> Json<Vec<String>> {
 }
 
 #[get("/template/<name>/placeholders")]
-fn get_placeholders(name: String) -> Json<Vec<String>> {
+fn get_placeholders(name: String) -> Result<Json<Vec<String>>, Status> {
     let template_name = match templates::try_to_find_template(name) {
         Ok(template_name) => template_name,
-        Err(err_message) => err_message,
+        Err(_) => return Err(Status::NotFound),
     };
 
-    let template_content = templates::get_template_content(template_name);
+    let template_content = match templates::get_template_content(template_name) {
+        Ok(template_name) => template_name,
+        Err(_) => return Err(Status::NotFound),
+    };
 
     let placeholders = placeholders::find_placeholders(template_content);
 
-    Json(placeholders)
+    Ok(Json(placeholders))
+}
+
+#[catch(404)]
+fn not_found() -> Json<CustomError> {
+    Json(CustomError {
+        status: 404,
+        message: String::from("Template not found"),
+    })
 }
 
 fn main() {
     rocket::ignite()
         .attach(CORS)
         .mount("/", routes![get_template, get_placeholders])
+        .register(catchers![not_found])
         .launch();
 }

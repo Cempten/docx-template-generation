@@ -30,26 +30,38 @@ pub fn try_to_find_template(name: String) -> Result<String, String> {
     Err(String::from("Template not found"))
 }
 
-pub fn get_template_content(template_name: String) -> String {
+pub fn get_template_content(template_name: String) -> Result<String, String> {
     let full_name = format!("{}{}", TEMPLATES_PATH, template_name);
 
-    let template = fs::File::open(full_name).unwrap();
-    let mut archive = zip::ZipArchive::new(&template).unwrap();
+    let template = match fs::File::open(full_name) {
+        Ok(file) => file,
+        Err(_) => return Err(String::from("Template not found")),
+    };
+    let mut archive = match zip::ZipArchive::new(&template) {
+        Ok(zip) => zip,
+        Err(_) => return Err(String::from("File is damaged")),
+    };
 
     for i in 0..archive.len() {
-        let mut inner_file = archive.by_index(i).unwrap();
+        let mut inner_file = match archive.by_index(i) {
+            Ok(zip) => zip,
+            Err(_) => return Err(String::from("File is damaged")),
+        };
 
         if inner_file.name().contains("word/document") {
             let mut inner_file_content = String::new();
-            inner_file.read_to_string(&mut inner_file_content).unwrap();
-            return inner_file_content;
+            if let Err(_) = inner_file.read_to_string(&mut inner_file_content) {
+                return Err(String::from("File is damaged"));
+            };
+
+            return Ok(inner_file_content);
         }
     }
 
-    return String::new();
+    Err(String::from("Template not found"))
 }
 
-fn make_document_copy() {
+fn _make_document_copy() {
     let template = fs::File::open("static/handover_protocol_NAKUKOP_template.docx").unwrap();
     let new_template = fs::File::create("sss.docx").unwrap();
 
