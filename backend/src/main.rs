@@ -47,7 +47,7 @@ fn main() {
     //     .attach(CORS)
     //     .mount("/", routes![get_template, get_placeholders])
     //     .launch();
-    println!("{}", expand_placeholder("{{sss  }}").len())
+    get_template_content();
 }
 
 use std::fs;
@@ -72,6 +72,23 @@ fn make_document_copy() {
         zip.start_file(inner_file.name(), options).unwrap();
         zip.write(inner_file_content.as_bytes()).unwrap();
     }
+}
+
+fn get_template_content() -> String {
+    let file = fs::File::open("static/very_long_template_name.docx").unwrap();
+    let mut archive = zip::ZipArchive::new(&file).unwrap();
+
+    for i in 0..archive.len() {
+        let mut inner_file = archive.by_index(i).unwrap();
+
+        if inner_file.name().contains("word/document") {
+            let mut inner_file_content = String::new();
+            inner_file.read_to_string(&mut inner_file_content).unwrap();
+            return inner_file_content;
+        }
+    }
+
+    return String::new();
 }
 
 use regex::Regex;
