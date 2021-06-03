@@ -5,35 +5,12 @@ extern crate rocket;
 #[macro_use]
 extern crate serde_derive;
 
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::Header;
 use rocket::http::Status;
-use rocket::{Request, Response};
 use rocket_contrib::json::Json;
 
 mod modules;
 
-use modules::{placeholders, templates};
-
-pub struct CORS;
-impl Fairing for CORS {
-    fn info(&self) -> Info {
-        Info {
-            name: "Add CORS headers to responses",
-            kind: Kind::Response,
-        }
-    }
-
-    fn on_response(&self, _request: &Request, response: &mut Response) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
-        response.set_header(Header::new(
-            "Access-Control-Allow-Methods",
-            "POST, GET, PATCH, OPTIONS",
-        ));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
-        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
-    }
-}
+use modules::{cors, placeholders, templates};
 
 #[derive(Serialize, Deserialize)]
 struct CustomError {
@@ -74,7 +51,7 @@ fn not_found() -> Json<CustomError> {
 
 fn main() {
     rocket::ignite()
-        .attach(CORS)
+        .attach(cors::CORS)
         .mount("/", routes![get_template, get_placeholders])
         .register(catchers![not_found])
         .launch();
