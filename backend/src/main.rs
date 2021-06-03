@@ -35,19 +35,24 @@ fn get_template() -> Json<Vec<String>> {
 }
 
 #[get("/template/<name>/placeholders")]
-fn get_placeholders(name: String) -> Json<String> {
-    match backend::try_to_find_file(name) {
-        Ok(file_name) => return Json(file_name),
-        Err(err_message) => return Json(err_message),
+fn get_placeholders(name: String) -> Json<Vec<String>> {
+    let file_name = match backend::try_to_find_file(name) {
+        Ok(file_name) => file_name,
+        Err(err_message) => err_message,
     };
+
+    let template_content = get_template_content(file_name);
+
+    let placeholders = find_placeholders(template_content);
+
+    Json(placeholders)
 }
 
 fn main() {
-    // rocket::ignite()
-    //     .attach(CORS)
-    //     .mount("/", routes![get_template, get_placeholders])
-    //     .launch();
-    get_template_content();
+    rocket::ignite()
+        .attach(CORS)
+        .mount("/", routes![get_template, get_placeholders])
+        .launch();
 }
 
 use std::fs;
@@ -74,8 +79,11 @@ fn make_document_copy() {
     }
 }
 
-fn get_template_content() -> String {
-    let file = fs::File::open("static/very_long_template_name.docx").unwrap();
+fn get_template_content(file_name: String) -> String {
+    let dir = "static/"; // refactor
+    let full_name = format!("{}{}", dir, file_name);
+
+    let file = fs::File::open(full_name).unwrap();
     let mut archive = zip::ZipArchive::new(&file).unwrap();
 
     for i in 0..archive.len() {
@@ -93,13 +101,17 @@ fn get_template_content() -> String {
 
 use regex::Regex;
 
-fn find_placeholders() {
+fn find_placeholders(file_content: String) -> Vec<String> {
     let re = Regex::new(r"\{\{.+?\}\}").unwrap();
+    let mut placeholders: Vec<String> = Vec::new();
 
-    for caps in re.captures_iter("{{sss  }} asdwasdw      asdwasdw {{qqq}}") {
-        let asdw = caps.get(0).unwrap().as_str();
-        println!("{:?}", asdw)
+    for caps in re.captures_iter(file_content.as_str()) {
+        let one_placeholder = caps.get(0).unwrap().as_str();
+        let expanded_placeholder = expand_placeholder(one_placeholder);
+        placeholders.push(String::from(expanded_placeholder));
     }
+
+    placeholders
 }
 
 fn expand_placeholder(raw_placeholder: &str) -> &str {
