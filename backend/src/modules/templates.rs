@@ -61,6 +61,15 @@ pub fn get_template_content(template_name: String) -> Result<String, String> {
     Err(String::from("Template not found"))
 }
 
+pub fn try_to_delete_template(template_name: String) -> Result<String, String> {
+    let full_name = format!("{}{}", TEMPLATES_PATH, template_name);
+
+    if let Err(_) = fs::remove_file(full_name) {
+        return Err(String::from("Unable to delete template"));
+    }
+    Ok(template_name)
+}
+
 fn _make_document_copy() {
     let template = fs::File::open("static/handover_protocol_NAKUKOP_template.docx").unwrap();
     let new_template = fs::File::create("sss.docx").unwrap();

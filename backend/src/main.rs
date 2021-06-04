@@ -41,6 +41,19 @@ fn get_placeholders(name: String) -> Result<Json<Vec<String>>, Status> {
     Ok(Json(placeholders))
 }
 
+#[delete("/template/<name>")]
+fn delete_template(name: String) -> Result<Json<String>, Status> {
+    let template_name = match templates::try_to_find_template(name) {
+        Ok(template_name) => template_name,
+        Err(_) => return Err(Status::NotFound),
+    };
+
+    match templates::try_to_delete_template(template_name) {
+        Ok(deleted_template_name) => return Ok(Json(deleted_template_name)),
+        Err(_) => return Err(Status::NotFound),
+    };
+}
+
 #[catch(404)]
 fn not_found() -> Json<CustomError> {
     Json(CustomError {
@@ -50,9 +63,14 @@ fn not_found() -> Json<CustomError> {
 }
 
 fn main() {
+    let cors_headers = cors::get_cors();
+
     rocket::ignite()
-        .attach(cors::CORS)
-        .mount("/", routes![get_template, get_placeholders])
+        .attach(cors_headers)
+        .mount(
+            "/",
+            routes![get_template, get_placeholders, delete_template],
+        )
         .register(catchers![not_found])
         .launch();
 }
