@@ -1,5 +1,6 @@
 use std::fs;
 use std::io::{Read, Write};
+use std::path::PathBuf;
 
 use zip::write::FileOptions;
 
@@ -70,21 +71,43 @@ pub fn try_to_delete_template(template_name: String) -> Result<String, String> {
     Ok(template_name)
 }
 
-fn _make_document_copy() {
-    let template = fs::File::open("static/handover_protocol_NAKUKOP_template.docx").unwrap();
-    let new_template = fs::File::create("sss.docx").unwrap();
+pub fn save_file(file_name: &String, file_path: PathBuf) -> Result<(), String> {
+    let template = match fs::File::open(file_path) {
+        Ok(file) => file,
+        Err(_) => return Err(String::from("File not found")),
+    };
 
-    let mut archive = zip::ZipArchive::new(template).unwrap();
+    let full_name = format!("{}{}", TEMPLATES_PATH, file_name);
+    let new_template = match fs::File::create(full_name) {
+        Ok(file) => file,
+        Err(_) => return Err(String::from("File creation error")),
+    };
+
+    let mut archive = match zip::ZipArchive::new(template) {
+        Ok(archive) => archive,
+        Err(_) => return Err(String::from("File unzip error")),
+    };
     let mut zip = zip::ZipWriter::new(new_template);
 
     let options = FileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
     for i in 0..archive.len() {
-        let mut inner_file = archive.by_index(i).unwrap();
-        let mut inner_file_content = String::new();
-        inner_file.read_to_string(&mut inner_file_content).unwrap();
+        let mut inner_file = match archive.by_index(i) {
+            Ok(inner_file) => inner_file,
+            Err(_) => return Err(String::from("File unzip error")),
+        };
 
-        zip.start_file(inner_file.name(), options).unwrap();
-        zip.write(inner_file_content.as_bytes()).unwrap();
+        let mut inner_file_content = String::new();
+        if let Err(_) = inner_file.read_to_string(&mut inner_file_content) {
+            return Err(String::from("Error reading file content"));
+        };
+
+        if let Err(_) = zip.start_file(inner_file.name(), options) {
+            return Err(String::from("File save error"));
+        }
+        if let Err(_) = zip.write(inner_file_content.as_bytes()) {
+            return Err(String::from("File save error"));
+        }
     }
+    Ok(())
 }
