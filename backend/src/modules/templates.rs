@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use zip::write::FileOptions;
 
 const TEMPLATES_PATH: &str = "static/";
+const PREFIX: &str = "done_";
 
 pub fn get_templates_names() -> Vec<String> {
     let mut template_names: Vec<String> = Vec::new();
@@ -31,7 +32,7 @@ pub fn try_to_find_template(name: String) -> Result<String, String> {
     Err(String::from("Template not found"))
 }
 
-pub fn get_template_content(template_name: String) -> Result<String, String> {
+pub fn get_template_content(template_name: &String) -> Result<String, String> {
     let full_name = format!("{}{}", TEMPLATES_PATH, template_name);
 
     let template = match fs::File::open(full_name) {
@@ -80,14 +81,15 @@ pub fn save_file(file_name: &String, file_path: PathBuf) -> Result<(), String> {
     }
 }
 
-pub fn _edit_template(file_name: &String, file_path: PathBuf) -> Result<(), String> {
-    let template = match fs::File::open(file_path) {
+pub fn edit_template(file_name: &String, new_content: String) -> Result<String, String> {
+    let template_path = format!("{}{}", TEMPLATES_PATH, file_name);
+    let template = match fs::File::open(template_path) {
         Ok(file) => file,
         Err(_) => return Err(String::from("File not found")),
     };
 
-    let full_name = format!("{}{}", TEMPLATES_PATH, file_name);
-    let new_template = match fs::File::create(full_name) {
+    let filling_template_name = format!("{}{}{}", TEMPLATES_PATH, PREFIX, file_name);
+    let filling_template = match fs::File::create(&filling_template_name) {
         Ok(file) => file,
         Err(_) => return Err(String::from("File creation error")),
     };
@@ -96,7 +98,7 @@ pub fn _edit_template(file_name: &String, file_path: PathBuf) -> Result<(), Stri
         Ok(archive) => archive,
         Err(_) => return Err(String::from("File unzip error")),
     };
-    let mut zip = zip::ZipWriter::new(new_template);
+    let mut zip = zip::ZipWriter::new(filling_template);
 
     let options = FileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
@@ -107,9 +109,14 @@ pub fn _edit_template(file_name: &String, file_path: PathBuf) -> Result<(), Stri
         };
 
         let mut inner_file_content = String::new();
-        if let Err(_) = inner_file.read_to_string(&mut inner_file_content) {
-            return Err(String::from("Error reading file content"));
-        };
+
+        if inner_file.name().contains("word/document") {
+            inner_file_content = new_content.clone();
+        } else {
+            if let Err(_) = inner_file.read_to_string(&mut inner_file_content) {
+                return Err(String::from("Error reading file content"));
+            };
+        }
 
         if let Err(_) = zip.start_file(inner_file.name(), options) {
             return Err(String::from("File save error"));
@@ -118,5 +125,5 @@ pub fn _edit_template(file_name: &String, file_path: PathBuf) -> Result<(), Stri
             return Err(String::from("File save error"));
         }
     }
-    Ok(())
+    Ok(filling_template_name)
 }

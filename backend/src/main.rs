@@ -61,14 +61,56 @@ fn get_placeholders(name: String) -> Result<Json<Vec<String>>, Status> {
         Err(_) => return Err(Status::NotFound),
     };
 
-    let template_content = match templates::get_template_content(template_name) {
-        Ok(template_name) => template_name,
+    let template_content = match templates::get_template_content(&template_name) {
+        Ok(content) => content,
         Err(_) => return Err(Status::NotFound),
     };
 
-    let placeholders = placeholders::find_placeholders(template_content);
+    let mut placeholders = placeholders::find_placeholders(&template_content);
+    for elem in placeholders.iter_mut() {
+        *elem = String::from(placeholders::expand_placeholder(elem));
+    }
 
     Ok(Json(placeholders))
+}
+
+use std::collections::HashMap;
+
+#[derive(Deserialize, Debug)]
+struct Placeholders {
+    placeholders: HashMap<String, String>,
+}
+
+#[post("/template/<name>", data = "<data>")]
+fn fill_template(data: Json<Placeholders>, name: String) -> Result<Json<String>, Status> {
+    let mut template_content = match templates::get_template_content(&name) {
+        Ok(content) => content,
+        Err(_) => return Err(Status::NotFound),
+    };
+
+    let raw_placeholders = placeholders::find_placeholders(&template_content);
+
+    for one_raw_placeholder in raw_placeholders.iter() {
+        let expanded_placeholder =
+            String::from(placeholders::expand_placeholder(one_raw_placeholder));
+
+        let placeholder_value = match data.placeholders.get(&expanded_placeholder) {
+            Some(value) => value,
+            None => return Err(Status::NotFound),
+        };
+
+        let updated_template_content =
+            template_content.replace(one_raw_placeholder, placeholder_value);
+
+        template_content = updated_template_content;
+    }
+
+    let filled_template_name = match templates::edit_template(&name, template_content) {
+        Ok(name) => name,
+        Err(_) => return Err(Status::NotFound),
+    };
+
+    return Ok(Json(filled_template_name));
 }
 
 #[delete("/template/<name>")]
@@ -103,7 +145,8 @@ fn main() {
                 get_template,
                 get_placeholders,
                 delete_template,
-                new_template
+                new_template,
+                fill_template,
             ],
         )
         .register(catchers![not_found])
