@@ -72,6 +72,15 @@ pub fn try_to_delete_template(template_name: String) -> Result<String, String> {
 }
 
 pub fn save_file(file_name: &String, file_path: PathBuf) -> Result<(), String> {
+    let full_name = format!("{}{}", TEMPLATES_PATH, file_name);
+
+    match fs::copy(file_path, full_name) {
+        Ok(_) => return Ok(()),
+        Err(_) => return Err(String::from("File copy error")),
+    }
+}
+
+pub fn _edit_template(file_name: &String, file_path: PathBuf) -> Result<(), String> {
     let template = match fs::File::open(file_path) {
         Ok(file) => file,
         Err(_) => return Err(String::from("File not found")),
