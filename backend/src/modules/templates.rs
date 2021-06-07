@@ -14,7 +14,9 @@ pub fn get_templates_names() -> Vec<String> {
 
     for template in dir {
         let template_name = template.unwrap().file_name().into_string().unwrap();
-        template_names.push(template_name);
+        if &template_name[0..PREFIX.len()] != PREFIX {
+            template_names.push(template_name);
+        }
     }
 
     template_names
@@ -125,5 +127,6 @@ pub fn edit_template(file_name: &String, new_content: String) -> Result<String, 
             return Err(String::from("File save error"));
         }
     }
+    let filling_template_name = String::from(&filling_template_name[TEMPLATES_PATH.len()..]);
     Ok(filling_template_name)
 }

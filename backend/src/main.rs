@@ -82,7 +82,7 @@ struct Placeholders {
 }
 
 #[post("/template/<name>", data = "<data>")]
-fn fill_template(data: Json<Placeholders>, name: String) -> Result<Json<String>, Status> {
+fn get_filled_template(data: Json<Placeholders>, name: String) -> Result<Json<String>, Status> {
     let mut template_content = match templates::get_template_content(&name) {
         Ok(content) => content,
         Err(_) => return Err(Status::NotFound),
@@ -146,7 +146,7 @@ fn main() {
                 get_placeholders,
                 delete_template,
                 new_template,
-                fill_template,
+                get_filled_template,
             ],
         )
         .register(catchers![not_found])
