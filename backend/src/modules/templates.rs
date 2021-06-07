@@ -66,11 +66,15 @@ pub fn get_template_content(template_name: &String) -> Result<String, String> {
 }
 
 pub fn try_to_delete_template(template_name: String) -> Result<String, String> {
-    let full_name = format!("{}{}", TEMPLATES_PATH, template_name);
+    let full_template_name = format!("{}{}", TEMPLATES_PATH, template_name);
+    let full_filled_template_name = format!("{}{}{}", TEMPLATES_PATH, PREFIX, template_name);
 
-    if let Err(_) = fs::remove_file(full_name) {
+    if let Err(_) = fs::remove_file(full_template_name) {
         return Err(String::from("Unable to delete template"));
     }
+    if let Err(_) = fs::remove_file(full_filled_template_name) {
+        return Ok(template_name);
+    };
     Ok(template_name)
 }
 
