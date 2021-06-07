@@ -5,11 +5,16 @@ extern crate rocket;
 #[macro_use]
 extern crate serde_derive;
 
-use multipart::server::save::SaveResult::{Error, Full, Partial};
-use multipart::server::Multipart;
-use rocket::http::{ContentType, Status};
-use rocket::Data;
+use multipart::server::{
+    save::SaveResult::{Error, Full, Partial},
+    Multipart,
+};
+use rocket::{
+    http::{ContentType, Status},
+    response, Data, Request, Response,
+};
 use rocket_contrib::json::Json;
+use std::fs::File;
 
 mod modules;
 use modules::{cors, placeholders, request_utils, templates};
@@ -113,6 +118,26 @@ fn get_filled_template(data: Json<Placeholders>, name: String) -> Result<Json<St
     return Ok(Json(filled_template_name));
 }
 
+struct FileStruct(File);
+
+impl<'r> response::Responder<'r> for FileStruct {
+    fn respond_to(self, req: &Request) -> response::Result<'r> {
+        Response::build_from(self.0.respond_to(req)?)
+            .raw_header("Content-Disposition", "attachment")
+            .ok()
+    }
+}
+
+#[get("/template/<name>")]
+fn download_template(name: String) -> Result<FileStruct, Status> {
+    let full_name = format!("{}{}", "static/", name);
+    let filled_template = match File::open(full_name) {
+        Ok(name) => name,
+        Err(_) => return Err(Status::NotFound),
+    };
+    return Ok(FileStruct(filled_template));
+}
+
 #[delete("/template/<name>")]
 fn delete_template(name: String) -> Result<Json<String>, Status> {
     let template_name = match templates::try_to_find_template(name) {
@@ -147,6 +172,7 @@ fn main() {
                 delete_template,
                 new_template,
                 get_filled_template,
+                download_template
             ],
         )
         .register(catchers![not_found])
