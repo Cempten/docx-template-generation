@@ -17,6 +17,7 @@ export const StyledTemplate = styled.div`
   margin-bottom: 8px;
   background: ${({ theme }) => theme.primary[2]};
   border-radius: 8px;
+  cursor: pointer;
 
   &:last-of-type {
     margin-bottom: 0;
