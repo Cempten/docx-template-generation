@@ -4,6 +4,7 @@ const primary = {
   2: '#B2F5EA',
   3: '#EDF2F7',
   4: '#E6FFFA',
+  5: '#FFFFFF',
 }
 
 export const theme = {

@@ -6,6 +6,7 @@ export const TemplatesContainer = styled.div`
   align-items: center;
   width: 100%;
   padding: 9px;
+  margin-bottom: 20px;
   background: ${({ theme }) => theme.primary[4]};
   border-radius: 8px;
 `
