@@ -5,6 +5,7 @@
   "dependencies": {
     "@chakra-ui/icons": "^1.0.13",
     "@chakra-ui/react": "^1.6.3",
+    "@craco/craco": "^6.1.2",
     "@emotion/react": "11",
     "@emotion/styled": "11",
     "@testing-library/jest-dom": "^5.11.4",
@@ -23,10 +24,14 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "craco eject",
+    "type-check": "tsc --pretty --noEmit",
+    "format": "prettier --write \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint . --ext ts --ext tsx --ext js",
+    "drop": "rm -rf && yarn install"
   },
   "eslintConfig": {
     "extends": [
@@ -52,6 +57,7 @@
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-react": "^7.22.0",
     "prettier": "^2.3.0"
   }
 }

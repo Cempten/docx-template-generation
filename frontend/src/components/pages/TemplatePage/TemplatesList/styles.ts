@@ -9,7 +9,7 @@ export const TemplatesContainer = styled.div`
   border-radius: 8px;
 `
 
-export const Template = styled.label`
+export const Template = styled.div`
   display: flex;
   width: 100%;
   padding: 20px 15px 20px 21px;
