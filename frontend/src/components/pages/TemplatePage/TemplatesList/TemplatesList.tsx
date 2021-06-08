@@ -10,27 +10,27 @@ import {
 import { Checkbox } from '@components/generic'
 // types
 import { Template } from './types'
+import { useApi } from '@components/hooks'
 
-const template1 = {
-  title: 'handover_protocol_NAKUKOP_template',
+const newTemplate = (title: string): Template => ({
+  title,
   checked: false,
-}
-
-const template2 = {
-  title: 'handover_protocol_NAKUKOP_templatex',
-  checked: false,
-}
-
-const template3 = {
-  title: 'handover_protocol_NAKUKOP_templatexx',
-  checked: false,
-}
+})
 
 export const TemplatesList: React.FC = () => {
+  const { getTemplates, deleteTemplate } = useApi()
   const [templates, setTemplates] = useState<Array<Template>>([])
 
   useEffect(() => {
-    setTemplates([template1, template2, template3])
+    const requestTemplates = async () => {
+      const templiteTitles = await getTemplates()
+
+      if (templiteTitles) {
+        const newTemplates = templiteTitles.map((x) => newTemplate(x))
+        setTemplates(newTemplates)
+      }
+    }
+    requestTemplates()
   }, [])
 
   const handleTemplateClick = (
@@ -48,12 +48,18 @@ export const TemplatesList: React.FC = () => {
     setTemplates(updatedTemplates)
   }
 
-  const handleDeleteClick = (
+  const handleDeleteClick = async (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     e.stopPropagation()
     const clickedTemplate = e.currentTarget.dataset.name
-    console.log(clickedTemplate)
+
+    if (clickedTemplate) {
+      const deletedTemplate = await deleteTemplate(clickedTemplate)
+      setTemplates(
+        templates.filter((template) => template.title !== deletedTemplate),
+      )
+    }
   }
 
   return (

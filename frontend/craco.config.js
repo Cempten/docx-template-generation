@@ -7,6 +7,8 @@ module.exports = {
     alias: {
       '@components': resolvePath('./src/components'),
       '@components/*': resolvePath('./src/components/*'),
+      '@hooks': resolvePath('./src/components/hooks*'),
+      '@hooks/*': resolvePath('./src/components/hooks/*'),
     },
   },
 }
