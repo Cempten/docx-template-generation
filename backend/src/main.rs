@@ -25,6 +25,5 @@ fn main() {
                 config::download_template
             ],
         )
-        .register(catchers![config::not_found])
         .launch();
 }
