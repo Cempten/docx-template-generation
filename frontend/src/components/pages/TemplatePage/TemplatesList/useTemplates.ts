@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 // loacl libs
+import { useAppDispatch, useAppSelector } from '@store'
+import { selectTemplates, setTemplates } from '@store/templates'
 import { useApi } from '@components/hooks'
 // types
 import { Template, UseTemplates } from './types'
 
 export const useTemplates: UseTemplates = () => {
-  const [templates, setTemplates] = useState<Array<Template>>([])
+  const templates = useAppSelector(selectTemplates)
+  const dispatch = useAppDispatch()
+
   const { getTemplates, deleteTemplate } = useApi()
 
   const newTemplate = (title: string): Template => ({
@@ -19,7 +23,7 @@ export const useTemplates: UseTemplates = () => {
 
       if (templiteTitles) {
         const newTemplates = templiteTitles.map((x) => newTemplate(x))
-        setTemplates(newTemplates)
+        dispatch(setTemplates(newTemplates))
       }
     }
     requestTemplates()
@@ -37,7 +41,7 @@ export const useTemplates: UseTemplates = () => {
             checked: !x.checked,
           },
     )
-    setTemplates(updatedTemplates)
+    dispatch(setTemplates(updatedTemplates))
   }
 
   const handleDeleteClick = async (
@@ -48,9 +52,10 @@ export const useTemplates: UseTemplates = () => {
 
     if (clickedTemplate) {
       const deletedTemplate = await deleteTemplate(clickedTemplate)
-      setTemplates(
-        templates.filter((template) => template.title !== deletedTemplate),
+      const updatedTemplates = templates.filter(
+        (template) => template.title !== deletedTemplate,
       )
+      dispatch(setTemplates(updatedTemplates))
     }
   }
 

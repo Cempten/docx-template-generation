@@ -13,12 +13,13 @@ const templatesSlice = createSlice({
   name: 'templates',
   initialState,
   reducers: {
-    addTemplates: (state, action: PayloadAction<Array<Template>>) => {
-      state = action.payload
+    setTemplates: (_state, action: PayloadAction<Array<Template>>) => {
+      return action.payload
     },
   },
 })
 
-export const selectTemplates = (state: RootState) => state.templates
-export const { addTemplates } = templatesSlice.actions
+export const selectTemplates = (state: RootState): Array<Template> =>
+  state.templates
+export const { setTemplates } = templatesSlice.actions
 export const templatesReducer = templatesSlice.reducer
