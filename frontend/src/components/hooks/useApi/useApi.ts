@@ -44,11 +44,13 @@ export const useApi: UseApi = () => {
 
     const results = await Promise.all(requests)
 
-    const fileNamesList = results.map((result) => {
-      if (result) return result.data
-      else return 'Plug'
-    })
-    return fileNamesList.filter((filename) => filename !== 'Plug')
+    const fileNamesList = results
+      .map((result) => {
+        if (result) return result.data
+        else return 'Plug'
+      })
+      .filter((filename) => filename !== 'Plug')
+    return fileNamesList
   }
 
   return { getTemplates, deleteTemplate, postFiles }
