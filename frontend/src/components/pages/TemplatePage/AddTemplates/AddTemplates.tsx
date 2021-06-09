@@ -39,6 +39,7 @@ export const AddTemplates: React.FC<AddTemplatesProps> = ({ closeModal }) => {
       }))
 
       dispatch(setTemplates([...templates, ...newTemplates]))
+      closeModal()
     }
   }
 

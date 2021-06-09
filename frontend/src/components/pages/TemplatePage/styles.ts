@@ -10,3 +10,9 @@ export const ButtonContainer = styled.div`
   display: flex;
   margin-bottom: 25px;
 `
+
+export const InputContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+`
