@@ -11,4 +11,9 @@ export const StyledButton = styled.button<StyledButtonProps>`
   font-size: 14px;
   font-weight: 700;
   color: ${({ theme }) => theme.primary[5]};
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 `
