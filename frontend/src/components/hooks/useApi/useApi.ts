@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 // types
-import { GetTemplates, UseApi, DeleteTemplate } from './types'
+import { GetTemplates, UseApi, DeleteTemplate, PostFiles } from './types'
 
 const URL = 'http://localhost:8000'
 
@@ -25,5 +25,31 @@ export const useApi: UseApi = () => {
     }
   }
 
-  return { getTemplates, deleteTemplate }
+  const postFiles: PostFiles = async (files) => {
+    const requests: Array<Promise<AxiosResponse<string>>> = []
+
+    files.forEach((file) => {
+      const data: FormData = new FormData()
+      data.append('file', file)
+
+      requests.push(
+        axios.request({
+          url: `${URL}/template`,
+          method: 'POST',
+          headers: { ['Content-Type']: `multipart/form-data;` },
+          data,
+        }),
+      )
+    })
+
+    const results = await Promise.all(requests)
+
+    const fileNamesList = results.map((result) => {
+      if (result) return result.data
+      else return 'Plug'
+    })
+    return fileNamesList.filter((filename) => filename !== 'Plug')
+  }
+
+  return { getTemplates, deleteTemplate, postFiles }
 }

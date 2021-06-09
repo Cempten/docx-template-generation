@@ -8,9 +8,9 @@ import {
   ButtonContainer,
 } from './styles'
 import { ReactComponent as CloseIcon } from './assets/cross-icon.svg'
+import { Button } from '@components/generic'
 // types
 import { AddTemplatesProps } from './types'
-import { Button } from '@components/generic'
 
 export const AddTemplates: React.FC<AddTemplatesProps> = ({ closeModal }) => {
   const [files, setFiles] = useState<Array<File>>([])
