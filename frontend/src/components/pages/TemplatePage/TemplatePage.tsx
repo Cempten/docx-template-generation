@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useToast } from '@chakra-ui/react'
 // local libs
 import { Button, Modal, Toast } from '@components/generic'
@@ -14,7 +14,6 @@ import { TemplatesList } from './TemplatesList'
 import { useApi } from '@hooks'
 import { GenerationForm } from './GenerationForm'
 import { selectNotification } from '@components/store/notification'
-import { useEffect } from 'react'
 
 export const TemplatePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)

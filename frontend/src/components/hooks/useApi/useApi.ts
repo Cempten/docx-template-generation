@@ -1,4 +1,7 @@
-import axios, { AxiosResponse } from 'axios'
+import axios, { AxiosError, AxiosResponse } from 'axios'
+// local libs
+import { useAppDispatch } from '@store'
+import { setNotification } from '@store/notification'
 // types
 import {
   GetTemplates,
@@ -8,15 +11,26 @@ import {
   GetPickedTemplatesData,
   GetPreparedFileNames,
   DownloadFile,
+  CustomError,
 } from './types'
 
 const URL = 'http://localhost:8000'
 
 export const useApi: UseApi = () => {
+  const dispatch = useAppDispatch()
+
+  const setError = (error: AxiosError<CustomError>) => {
+    const errorBody = error.response?.data
+    if (errorBody)
+      dispatch(
+        setNotification({ message: errorBody.message, variant: 'error' }),
+      )
+  }
+
   const getTemplates: GetTemplates = async () => {
     const response: AxiosResponse<Array<string>> | void = await axios(
       `${URL}/template`,
-    )
+    ).catch((error: AxiosError<CustomError>) => setError(error))
     if (response) {
       return response.data
     }
@@ -26,7 +40,7 @@ export const useApi: UseApi = () => {
     const response: AxiosResponse<string> | void = await axios({
       url: `${URL}/template/${template}`,
       method: 'DELETE',
-    })
+    }).catch((error: AxiosError<CustomError>) => setError(error))
 
     if (response) {
       return response.data
@@ -34,19 +48,21 @@ export const useApi: UseApi = () => {
   }
 
   const postFiles: PostFiles = async (files) => {
-    const requests: Array<Promise<AxiosResponse<string>>> = []
+    const requests: Array<Promise<AxiosResponse<string> | void>> = []
 
     files.forEach((file) => {
       const data: FormData = new FormData()
       data.append('file', file)
 
       requests.push(
-        axios.request({
-          url: `${URL}/template`,
-          method: 'POST',
-          headers: { ['Content-Type']: `multipart/form-data;` },
-          data,
-        }),
+        axios
+          .request({
+            url: `${URL}/template`,
+            method: 'POST',
+            headers: { ['Content-Type']: `multipart/form-data;` },
+            data,
+          })
+          .catch((error: AxiosError<CustomError>) => setError(error)),
       )
     })
 
@@ -68,9 +84,9 @@ export const useApi: UseApi = () => {
 
     templates.forEach(({ title, checked }) => {
       if (checked) {
-        const req = axios.get<Array<string>>(
-          `${URL}/template/${title}/placeholders`,
-        )
+        const req = axios
+          .get<Array<string>>(`${URL}/template/${title}/placeholders`)
+          .catch((error: AxiosError<CustomError>) => setError(error))
 
         requests.push(req)
         pickedTemplates.push(title)
@@ -102,11 +118,13 @@ export const useApi: UseApi = () => {
 
     pickedTemplates.forEach((title) => {
       requests.push(
-        axios.request({
-          url: `${URL}/template/${title}`,
-          method: 'POST',
-          data: { placeholders },
-        }),
+        axios
+          .request({
+            url: `${URL}/template/${title}`,
+            method: 'POST',
+            data: { placeholders },
+          })
+          .catch((error: AxiosError<CustomError>) => setError(error)),
       )
     })
 

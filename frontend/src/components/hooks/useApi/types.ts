@@ -1,6 +1,11 @@
 import { PickedTemplateDataType } from '@components/store/CheckedTemplatesData'
 import { Template } from '@store/templates'
 
+export type CustomError = {
+  message: string
+  status: number
+}
+
 export type GetTemplates = () => Promise<Array<string> | undefined>
 
 export type DeleteTemplate = (template: string) => Promise<string | undefined>
