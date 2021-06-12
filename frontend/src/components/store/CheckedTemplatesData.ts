@@ -16,20 +16,15 @@ const pickedTemplatesDataSlice = createSlice({
   name: 'pickedTemplatesDataSlice',
   initialState,
   reducers: {
-    setPickedTemplates: (state, action: PayloadAction<Array<string>>) => ({
-      placeholders: state.placeholders,
-      pickedTemplates: action.payload,
-    }),
-    setPlaceholders: (state, action: PayloadAction<Set<string>>) => ({
-      pickedTemplates: state.pickedTemplates,
-      placeholders: action.payload,
-    }),
+    setPickedTemplatesData: (
+      _state,
+      action: PayloadAction<PickedTemplateDataType>,
+    ) => action.payload,
   },
 })
 
 export const selectPickedTemplatesData = (
   state: RootState,
 ): PickedTemplateDataType => state.pickedTemplatesData
-export const { setPickedTemplates, setPlaceholders } =
-  pickedTemplatesDataSlice.actions
+export const { setPickedTemplatesData } = pickedTemplatesDataSlice.actions
 export const pickedTemplatesDataReducer = pickedTemplatesDataSlice.reducer
