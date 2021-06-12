@@ -1,6 +1,12 @@
 import axios, { AxiosResponse } from 'axios'
 // types
-import { GetTemplates, UseApi, DeleteTemplate, PostFiles } from './types'
+import {
+  GetTemplates,
+  UseApi,
+  DeleteTemplate,
+  PostFiles,
+  GetPickedTemplatesData,
+} from './types'
 
 const URL = 'http://localhost:8000'
 
@@ -53,5 +59,38 @@ export const useApi: UseApi = () => {
     return fileNamesList
   }
 
-  return { getTemplates, deleteTemplate, postFiles }
+  const getPickedTemplatesData: GetPickedTemplatesData = async (templates) => {
+    const requests: Array<Promise<AxiosResponse<Array<string>> | void>> = []
+    const pickedTemplates: Array<string> = []
+    const placeholders: Set<string> = new Set()
+
+    templates.forEach(({ title, checked }) => {
+      if (checked) {
+        const req = axios.get<Array<string>>(
+          `${URL}/template/${title}/placeholders`,
+        )
+
+        requests.push(req)
+        pickedTemplates.push(title)
+      }
+    })
+
+    const responses = await Promise.all(requests)
+
+    responses.forEach((oneResponse) => {
+      const placeholdersArray = oneResponse?.data
+      if (placeholdersArray) {
+        placeholdersArray.forEach((placeholder) =>
+          placeholders.add(placeholder),
+        )
+      }
+    })
+
+    return {
+      placeholders,
+      pickedTemplates,
+    }
+  }
+
+  return { getTemplates, deleteTemplate, postFiles, getPickedTemplatesData }
 }

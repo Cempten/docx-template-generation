@@ -1,7 +1,4 @@
-export type Template = {
-  title: string
-  checked: boolean
-}
+import { Template } from '@store/templates'
 
 export type UseTemplates = () => {
   templates: Array<Template>

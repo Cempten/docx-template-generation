@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
 // loacl libs
 import { useAppDispatch, useAppSelector } from '@store'
-import { selectTemplates, setTemplates } from '@store/templates'
+import { selectTemplates, setTemplates, Template } from '@store/templates'
 import { useApi } from '@components/hooks'
 // types
-import { Template, UseTemplates } from './types'
+import { UseTemplates } from './types'
 
 export const useTemplates: UseTemplates = () => {
   const templates = useAppSelector(selectTemplates)
