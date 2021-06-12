@@ -6,6 +6,7 @@ import {
   DeleteTemplate,
   PostFiles,
   GetPickedTemplatesData,
+  GetPreparedFileNames,
 } from './types'
 
 const URL = 'http://localhost:8000'
@@ -92,5 +93,38 @@ export const useApi: UseApi = () => {
     }
   }
 
-  return { getTemplates, deleteTemplate, postFiles, getPickedTemplatesData }
+  const getPreparedFileNames: GetPreparedFileNames = async (
+    pickedTemplates,
+    placeholders,
+  ) => {
+    const requests: Array<Promise<AxiosResponse<string> | void>> = []
+
+    pickedTemplates.forEach((title) => {
+      requests.push(
+        axios.request({
+          url: `${URL}/template/${title}`,
+          method: 'POST',
+          data: { placeholders },
+        }),
+      )
+    })
+
+    const responses = await Promise.all(requests)
+
+    const fileNames: Array<string> = []
+    responses.forEach((oneResponse) => {
+      const fileName = oneResponse?.data
+      if (fileName) fileNames.push(fileName)
+    })
+
+    return fileNames
+  }
+
+  return {
+    getTemplates,
+    deleteTemplate,
+    postFiles,
+    getPickedTemplatesData,
+    getPreparedFileNames,
+  }
 }

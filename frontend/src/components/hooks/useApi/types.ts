@@ -13,9 +13,15 @@ export type GetPickedTemplatesData = (
   templates: Array<Template>,
 ) => Promise<PickedTemplateDataType>
 
+export type GetPreparedFileNames = (
+  pickedTemplates: Array<string>,
+  placeholders: Record<string, string>,
+) => Promise<Array<string>>
+
 export type UseApi = () => {
   getTemplates: GetTemplates
   deleteTemplate: DeleteTemplate
   postFiles: PostFiles
   getPickedTemplatesData: GetPickedTemplatesData
+  getPreparedFileNames: GetPreparedFileNames
 }
