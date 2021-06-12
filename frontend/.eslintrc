@@ -26,6 +26,7 @@
         "endOfLine": "auto"
       }
     ],
+    "react/display-name": ["off"],
     "react/prop-types": "off",
     "no-shadow": ["off"],
     "@typescript-eslint/explicit-module-boundary-types": ["off"],

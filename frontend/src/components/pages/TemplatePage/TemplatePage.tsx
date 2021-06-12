@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
+import { useToast } from '@chakra-ui/react'
 // local libs
-import { Button, Modal } from '@components/generic'
+import { Button, Modal, Toast } from '@components/generic'
 import { selectTemplates } from '@store/templates'
 import {
   setPickedTemplatesData,
@@ -12,6 +13,8 @@ import { Title, ButtonContainer } from './styles'
 import { TemplatesList } from './TemplatesList'
 import { useApi } from '@hooks'
 import { GenerationForm } from './GenerationForm'
+import { selectNotification } from '@components/store/notification'
+import { useEffect } from 'react'
 
 export const TemplatePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -19,13 +22,26 @@ export const TemplatePage: React.FC = () => {
   const dispatch = useAppDispatch()
   const { placeholders } = useAppSelector(selectPickedTemplatesData)
   const templates = useAppSelector(selectTemplates)
+  const notification = useAppSelector(selectNotification)
+  const toast = useToast()
+
+  useEffect(() => {
+    if (notification.message)
+      toast({
+        render: ({ onClose }) => (
+          <Toast
+            onClose={onClose}
+            variant={notification.variant}
+            message={notification.message}
+          />
+        ),
+      })
+  }, [notification])
 
   const handleGetPlaceholders = async () => {
     const pickedTemplatesData = await getPickedTemplatesData(templates)
     dispatch(setPickedTemplatesData(pickedTemplatesData))
   }
-
-  const isButtonDisabled = templates.length === 0
 
   const closeModal = () => setIsModalOpen(false)
   const openModal = () => setIsModalOpen(true)
@@ -39,7 +55,7 @@ export const TemplatePage: React.FC = () => {
       <ButtonContainer>
         <Button
           margin="0 15px 0 0"
-          disabled={isButtonDisabled}
+          disabled={templates.length === 0}
           onClick={handleGetPlaceholders}
         >
           Get placeholders

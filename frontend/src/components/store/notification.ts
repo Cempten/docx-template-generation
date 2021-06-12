@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 // local libs
 import { RootState } from './index'
 
-enum VariantsEnum {
+export enum VariantsEnum {
   notification = 'notification',
   error = 'error',
 }
