@@ -7,6 +7,7 @@ import {
   PostFiles,
   GetPickedTemplatesData,
   GetPreparedFileNames,
+  DownloadFile,
 } from './types'
 
 const URL = 'http://localhost:8000'
@@ -120,11 +121,18 @@ export const useApi: UseApi = () => {
     return fileNames
   }
 
+  const downloadFile: DownloadFile = (fileName) => {
+    const a = document.createElement('a')
+    a.href = `${URL}/template/${fileName}`
+    a.click()
+  }
+
   return {
     getTemplates,
     deleteTemplate,
     postFiles,
     getPickedTemplatesData,
     getPreparedFileNames,
+    downloadFile,
   }
 }

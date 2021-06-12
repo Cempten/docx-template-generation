@@ -12,7 +12,7 @@ import { FormData } from './types'
 
 export const GenerationForm: React.FC = () => {
   const [preparedFiles, setPreparedFiles] = useState<Array<string>>([])
-  const { getPreparedFileNames } = useApi()
+  const { getPreparedFileNames, downloadFile } = useApi()
   const { pickedTemplates } = useAppSelector(selectPickedTemplatesData)
 
   const { register, handleSubmit } = useForm<FormData>()
@@ -20,6 +20,14 @@ export const GenerationForm: React.FC = () => {
   const onSubmit = async (formData: FormData) => {
     const fileNames = await getPreparedFileNames(pickedTemplates, formData)
     setPreparedFiles(fileNames)
+  }
+
+  const handleDownload = () => {
+    preparedFiles.forEach((x, i) => {
+      setTimeout(() => {
+        downloadFile(x)
+      }, i * 300)
+    })
   }
 
   return (
@@ -30,7 +38,7 @@ export const GenerationForm: React.FC = () => {
         <Button type="submit" margin="0 15px 0 0">
           Generate documents
         </Button>
-        <Button disabled={preparedFiles.length === 0}>
+        <Button disabled={preparedFiles.length === 0} onClick={handleDownload}>
           Download documents
         </Button>
       </ButtonContainer>

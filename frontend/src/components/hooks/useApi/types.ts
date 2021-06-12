@@ -18,10 +18,13 @@ export type GetPreparedFileNames = (
   placeholders: Record<string, string>,
 ) => Promise<Array<string>>
 
+export type DownloadFile = (fileName: string) => void
+
 export type UseApi = () => {
   getTemplates: GetTemplates
   deleteTemplate: DeleteTemplate
   postFiles: PostFiles
   getPickedTemplatesData: GetPickedTemplatesData
   getPreparedFileNames: GetPreparedFileNames
+  downloadFile: DownloadFile
 }
