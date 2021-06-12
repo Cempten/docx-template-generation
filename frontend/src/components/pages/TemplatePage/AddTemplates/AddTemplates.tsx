@@ -9,9 +9,10 @@ import {
   CloseIconWrapper,
   ButtonContainer,
 } from './styles'
-import { ReactComponent as CloseIcon } from './assets/cross-icon.svg'
+import { setNotification } from '@store/notification'
 import { Button } from '@components/generic'
 import { useApi } from '@hooks'
+import { ReactComponent as CloseIcon } from './assets/cross-icon.svg'
 // types
 import { AddTemplatesProps } from './types'
 
@@ -21,8 +22,17 @@ export const AddTemplates: React.FC<AddTemplatesProps> = ({ closeModal }) => {
   const { postFiles } = useApi()
   const [files, setFiles] = useState<Array<File>>([])
 
-  const onDrop = (acceptedFiles: Array<File>) =>
-    setFiles([...files, ...acceptedFiles])
+  const onDrop = (acceptedFiles: Array<File>) => {
+    acceptedFiles.forEach((acceptedFile) => {
+      if (files.find((x) => x.name === acceptedFile.name)) {
+        const message = `This template has already been added: "${acceptedFile.name}"`
+        dispatch(setNotification({ message, variant: 'error' }))
+      } else if (templates.find((x) => x.title === acceptedFile.name)) {
+        const message = `This template is already loaded: "${acceptedFile.name}"`
+        dispatch(setNotification({ message, variant: 'error' }))
+      } else setFiles([...files, acceptedFile])
+    })
+  }
 
   const onDelete = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation()
