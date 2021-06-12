@@ -5,15 +5,15 @@ import { selectPickedTemplatesData } from '@store/CheckedTemplatesData'
 import { Input } from '@components/generic'
 import { InputContainer } from './styles'
 // types
+import { PlaceholderProps } from './types'
 
-export const PlaceholdersList: React.FC = () => {
+export const PlaceholdersList: React.FC<PlaceholderProps> = ({ register }) => {
   const { placeholders } = useAppSelector(selectPickedTemplatesData)
-  const placeholdersArray = Array.from(placeholders)
 
   return (
     <InputContainer>
-      {placeholdersArray.map((x) => (
-        <Input key={x} name={x} placeholder={x} />
+      {placeholders.map((x) => (
+        <Input key={x} name={x} placeholder={x} register={register} />
       ))}
     </InputContainer>
   )

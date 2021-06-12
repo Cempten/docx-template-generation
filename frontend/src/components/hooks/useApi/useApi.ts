@@ -87,7 +87,7 @@ export const useApi: UseApi = () => {
     })
 
     return {
-      placeholders,
+      placeholders: Array.from(placeholders),
       pickedTemplates,
     }
   }

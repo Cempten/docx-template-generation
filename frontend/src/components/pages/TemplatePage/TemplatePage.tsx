@@ -2,18 +2,22 @@ import React, { useState } from 'react'
 // local libs
 import { Button, Modal } from '@components/generic'
 import { selectTemplates } from '@store/templates'
-import { setPickedTemplatesData } from '@store/CheckedTemplatesData'
+import {
+  setPickedTemplatesData,
+  selectPickedTemplatesData,
+} from '@store/CheckedTemplatesData'
 import { useAppSelector, useAppDispatch } from '@store'
 import { AddTemplates } from './AddTemplates'
 import { Title, ButtonContainer } from './styles'
 import { TemplatesList } from './TemplatesList'
 import { useApi } from '@hooks'
-import { PlaceholdersList } from './PlaceholdersList'
+import { GenerationForm } from './GenerationForm'
 
 export const TemplatePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const { getPickedTemplatesData } = useApi()
   const dispatch = useAppDispatch()
+  const { placeholders } = useAppSelector(selectPickedTemplatesData)
   const templates = useAppSelector(selectTemplates)
 
   const handleGetPlaceholders = async () => {
@@ -43,7 +47,7 @@ export const TemplatePage: React.FC = () => {
         <Button onClick={openModal}>Add templates</Button>
       </ButtonContainer>
 
-      <PlaceholdersList />
+      {placeholders.length === 0 ? null : <GenerationForm />}
 
       <Modal
         isOpen={isModalOpen}

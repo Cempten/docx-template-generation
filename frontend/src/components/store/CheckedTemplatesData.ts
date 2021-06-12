@@ -4,12 +4,12 @@ import { RootState } from './index'
 
 export type PickedTemplateDataType = {
   pickedTemplates: Array<string>
-  placeholders: Set<string>
+  placeholders: Array<string>
 }
 
 const initialState: PickedTemplateDataType = {
   pickedTemplates: [],
-  placeholders: new Set(),
+  placeholders: [],
 }
 
 const pickedTemplatesDataSlice = createSlice({
